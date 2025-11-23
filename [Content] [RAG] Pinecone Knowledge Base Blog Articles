@@ -1,5 +1,5 @@
 {
-  "name": "[Pinceone] [Ghost] Blog Knowledge Base",
+  "name": "[Content] [RAG] Pinecone Knowledge Base Blog Articles",
   "nodes": [
     {
       "parameters": {
