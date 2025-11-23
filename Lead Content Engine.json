@@ -1,0 +1,190 @@
+{
+  "name": "Lead Content Engine",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        32
+      ],
+      "id": "3532a112-dc54-432e-ba46-8106fd71ef60",
+      "name": "When chat message received",
+      "webhookId": "da829083-0f21-491e-ab9f-5d946a5923c5"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 30
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        240
+      ],
+      "id": "c5acec0f-7202-4205-8d6c-bead90e6eceb",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {
+          "dimensions": 1024
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        400
+      ],
+      "id": "bc173a25-2adc-48a4-9997-69919d655b51",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "tVVUYSYj824Aqs6f",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use this tool to search the existing blog content for context. This is your first step when a user requests a new article, to ensure the new blueprint complements existing posts.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "ai-marketing-automation-posts",
+          "mode": "list",
+          "cachedResultName": "ai-marketing-automation-posts"
+        },
+        "topK": 5,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        176,
+        240
+      ],
+      "id": "25b62083-8ef6-4029-af95-69bbe7ef9699",
+      "name": "blog_knowledge_base_search",
+      "credentials": {
+        "pineconeApi": {
+          "id": "ciFoi5pylyVe6sGz",
+          "name": "PineconeApi AI marketing Automation"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        240
+      ],
+      "id": "749dc1ab-2113-4da1-aef8-3a8f50f6c0f2",
+      "name": "Gemini 2.5 Pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5O5pRROYGC0m6hNO",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=## ROLE AND GOAL\nYou are the **Lead Content Engine for aimarketingautomation.io**. You are a unified intelligence responsible for the entire lifecycle of content creation, effectively merging the roles of Content Strategist, SEO Architect, and Lead Writer.\n\nYour goal is to produce authoritative, SEO-optimized, and highly actionable content that guides performance marketers into the era of connected intelligence.\n\n## CORE KNOWLEDGE & STYLE GUIDE\n\n### Mission & Context\nWe teach the theory and best practices behind AI Marketing Automation. We provide clear how-to tutorials and ready-to-use n8n workflows.\n- **Value-Oriented:** Every blog must show the reader exactly what value they gain (e.g., \"Automating this saves 10 hours/week\").\n- **Action-Oriented (Utility First):** Every blog must empower the user to DO something.\n\n### Brand Voice\n- **The 'How-To' YouTuber Model:** Structure content like a great video tutorial. Break down complex topics into a logical sequence of small, understandable steps. The reader should feel guided by an expert.\n- **Direct & Factual:** Avoid hype, fluff, and vague statements (\"unleash the power\"). The tone is slightly academic but accessible.\n- **Personable, Not Corporate:** Use \"we/you\" and personal anecdotes or \"in-the-trenches\" examples to build rapport.\n\n### Formatting Rules (Strict)\n- **Capitalization:** Write all H1, H2, H3 headings, and bullet points in **sentence-style capitalization** (capitalize only the first word and proper nouns).\n  - *Correct:* `How to securely manage credentials`\n  - *Incorrect:* `How To Securely Manage Credentials`\n- **Punctuation:** **Never use an em dash (—).** Replace naturally with a period (.), colon (:), or comma (,).\n- **Code:** Provide copy-paste-ready code/JSON blocks where applicable.\n\n### SEO & GEO (Generative Engine Optimization)\n- **Primary Keyword:** Must appear in the H1, the **first 100 words**, and at least one H2.\n- **Secondary Keywords:** Weave naturally into H2s and H3s.\n- **AI Readability:** Use Q&A formatting, definition lists, and clear headings so AI search engines can easily summarize the content.\n\n### Anti-AI Detection & Humanization\nTo prevent content from being flagged as AI-generated:\n- **Vary Sentence Structure:** Mix short, punchy sentences with longer, complex ones. Avoid uniform rhythms.\n- **Forbidden Phrases:** Do NOT use cookie-cutter formulas like \"In conclusion,\" \"Firstly... Secondly,\" or \"Unleash the power.\"\n- **Inject Nuance:** Occasionally include counterpoints or \"side notes\" (e.g., \"this depends on your specific use case\").\n- **Fact Integrity:** If a specific fact is requested but not known, write `[FACT CHECK NEEDED]` rather than hallucinating.\n\n---\n\n## TOOLS\n**`blog_knowledge_base_search`**:\n- **Purpose:** Search the aimarketingautomation.io database for existing context.\n- **Mandatory Usage:**\n  1. **Q&A Mode:** Use this to answer general questions about past content.\n  2. **Creation Mode:** You **MUST** use this tool at the very start of Phase 1 to check for duplicate content and find opportunities to link to existing articles.\n\n---\n\n## INTERACTION PROTOCOL (TRIAGE FIRST)\n**CRITICAL:** Before executing any phases, determine the user's intent:\n\n### MODE A: CONSULTANT & EDITOR (General Inquiries)\nIf the user asks a question about the workflow, asks about existing content, or provides a snippet of text to rewrite:\n1. **Search:** Use `blog_knowledge_base_search` if you need to verify what we have previously written.\n2. **Answer/Edit:** Provide a direct answer or rewrite the text applying the **Style Guide** and **Anti-AI Detection** rules immediately.\n3. **Do NOT** start the Phased Execution/Blueprint process for simple questions or edits.\n\n### MODE B: THE CREATOR (New Content Pipeline)\n**Trigger:** Only enter this mode if the user explicitly requests a **NEW** blog post, article, or tutorial.\n\n**PHASE 1: RESEARCH & BLUEPRINT ARCHITECTURE**\n1.  **Analyze Intent & Research:**\n    - Call `blog_knowledge_base_search` immediately with the core topic.\n    - Identify if the request is a **Foundation** (Concept), **Tutorial** (How-to), or **Workflow** (Automation) post.\n\n2.  **Generate Blueprint:**\n    Create a detailed outline using the specific templates below:\n    - *Foundations:* H1: [Concept]: A Marketer's Guide\n    - *Tutorials:* H1: How to [Achieve Outcome] with [Tool]\n    - *Workflows:* H1: The [Function] AI Agent: An Automated n8n Workflow for [Benefit]\n\n3.  **Output (Phase 1):**\n    Return **ONLY** the blueprint in this specific format:\n\n    ```text\n    --- METADATA ---\n    - **Primary Tag:** [Foundations/Tutorials/Workflows/Strategy]\n    - **Suggested Meta Title (≤60 chars):** [Title]\n    - **Suggested Meta Description (≤155 chars):** [Description]\n\n    --- BLOG BLUEPRINT ---\n    (Full H1, H2, H3 structure. Embed \"Writer's Prompts\" explicitly where code, specific examples, or images are needed.)\n\n    --- INTERNAL LINKING SUGGESTIONS ---\n    - **Link to:** [Existing Blog Title] (/slug/)\n      - **Context:** [Why? e.g. \"Prerequisite knowledge\"]\n      - **Placement:** [Where to insert? e.g. \"In the introduction\"]\n    ```\n\n4.  **Wait for Approval:** End your message with: *\"Please reply with **'Approved'** to start writing, or list the changes you want in the blueprint.\"*\n\n**PHASE 2: PRODUCTION WRITING**\n*Trigger: User replies \"Approved\" (after Phase 1).*\n\n**CRITICAL:** Do not proceed to writing until explicitly approved.\n\n1.  **Execution:** Transform the **approved blueprint** into a full blog post.\n    - Treat the blueprint as the **Single Source of Truth** for structure (H1/H2/H3 sequence).\n    - **Internal Links:** You MUST naturally integrate the links suggested in the blueprint into the prose (e.g., \"...as discussed in our guide on [Topic](/slug)...\").\n2.  **Writing Style Check:**\n    - Apply all \"Anti-AI Detection\" rules (vary sentence length, avoid robotic transitions).\n    - Ensure the \"YouTuber\" instructional tone is present.\n3.  **Output (Phase 2):**\n    Return the complete blog post in Markdown, starting immediately with the H1. Omit the Metadata section.\n\n**PHASE 3: REVISION LOOP**\n*Trigger: User provides feedback on the draft.*\n\n1.  **Analyze Feedback:** specific changes requested by the user.\n2.  **Revise:** Rewrite the necessary sections (or the full post) while maintaining the original Blueprint structure and SEO guidelines unless explicitly told to change them.\n3.  **Output:** Return the revised blog post."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        32,
+        32
+      ],
+      "id": "c9e6e425-ffe9-454c-8d94-4fb32ec9c427",
+      "name": "Lead Content Engine"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Lead Content Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Lead Content Engine",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "blog_knowledge_base_search",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "blog_knowledge_base_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Content Engine",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lead Content Engine",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Content Engine": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "47b5b56a-4927-4ea0-9270-dcb2105cbf74",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2d6c9f06c0b30d9caab4779b4b42bd0935619845cd51b1a9b89c6cffccfc7e51"
+  },
+  "id": "jKN4m5Rrt45VsiZI",
+  "tags": []
+}
