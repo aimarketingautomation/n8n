@@ -1,5 +1,8 @@
 # n8n
-Here you find all JSON Code for AI Marketing Automation n8n workflows.
+
+Here you will find a collection of **n8n workflows** designed for **AI Marketing Automation**.
+
+These workflows are provided as **JSON code** which can be easily imported into your n8n instance.
 
 ---
 
@@ -15,3 +18,10 @@ Here you find all JSON Code for AI Marketing Automation n8n workflows.
 4.  **Save:** Save the workflow and start automating.
 
 ---
+
+## Prerequisites
+
+To use these workflows, you will need the following:
+
+* A running instance of **n8n** (self-hosted or cloud).
+* API keys for the services used in the workflows (e.g., **OpenAI**, **Google BigQuery**, **Slack**, etc.).
